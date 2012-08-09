@@ -1,20 +1,33 @@
 package example
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.path.FunSpec
+import org.scalatest.prop.TableDrivenPropertyChecks
 
-class RationalSpec extends FunSpec with ShouldMatchers {
+class RationalSpec extends FunSpec with ShouldMatchers with TableDrivenPropertyChecks {
 
   describe("A Rational constructor") {
-    it("should create Rational") {
-      val rational = new Rational(1, 2)
-      rational.numerator should be (1)
-      rational.denominator should be (2)
+    val validRationals =
+      Table (
+        ("numerator", "denominator"),
+        (1, 2),
+        (-1, 2),
+        (0, 2)
+      )
+
+    forAll(validRationals) { (numerator: Int, denominator: Int) =>
+      it("should create Rational for " + numerator + "/" + denominator) {
+        val rational = new Rational(numerator, denominator)
+        rational.numerator should be (numerator)
+        rational.denominator should be (denominator)
+      }
     }
 
-    it("should create Rational with default denominator") {
-      val rational = new Rational(2)
-      rational.numerator should be (2)
-      rational.denominator should be (1)
+    forAll(validRationals) { (numerator: Int, denominator: Int) =>
+      it("should create Rational for " + numerator + "/1") {
+        val rational = new Rational(numerator)
+        rational.numerator should be (numerator)
+        rational.denominator should be (1)
+      }
     }
 
     it("should not create Rational when denominator is equal 0") {

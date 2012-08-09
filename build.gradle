@@ -1,0 +1,41 @@
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+
+repositories { mavenCentral() }
+
+ext {
+    versions = [
+		scala: '2.9.2',
+		scalatest: '2.0.M3'
+	    ]
+}
+
+dependencies {
+    // Libraries needed to run the scala tools
+    scalaTools "org.scala-lang:scala-compiler:$versions.scala"
+    scalaTools "org.scala-lang:scala-library:$versions.scala"
+
+    // Libraries needed for scala api
+    compile "org.scala-lang:scala-library:$versions.scala"
+
+    testCompile "org.scalatest:scalatest_$versions.scala:$versions.scalatest"
+}
+
+task test(overwrite: true, dependsOn: testClasses) << {
+    ant.taskdef(name: 'scalatest',
+	    classname: 'org.scalatest.tools.ScalaTestAntTask',
+	    classpath: sourceSets.test.runtimeClasspath.asPath
+	    )
+
+    ant.scalatest(
+	    runpath: sourceSets.test.output.classesDir,
+	    haltonfailure: 'true',
+	    fork: 'false',
+	    parallel: 'true') { reporter(type: 'stdout') }
+}
+
+eclipse {
+    classpath {
+	containers "org.scala-ide.sdt.launching.SCALA_CONTAINER"
+    }
+}
